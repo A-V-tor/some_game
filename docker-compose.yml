@@ -1,0 +1,31 @@
+services:
+  app:
+      container_name: app
+      build: ./
+      command: bash -c "poetry run alembic upgrade head & poetry run python main.py"
+      ports:
+        - "8000:8000"
+      volumes:
+        - ./assets/:/app/assets/
+      depends_on:
+        - db
+      networks:
+        - game_net
+  db:
+      image: postgres:15
+      container_name: db
+      volumes:
+        - .:/var/lib/postgresql/data/
+      environment:
+        POSTGRES_USER: ${DB_USER}
+        POSTGRES_PASSWORD: ${DB_PASS}
+        POSTGRES_DB: ${DB_NAME}
+        PGDATA: /var/lib/postgresql/data/pgdata
+      env_file:
+        - .env
+      networks:
+        - game_net
+
+networks:
+  game_net:
+    name: game_net
